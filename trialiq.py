@@ -1,4 +1,31 @@
+import subprocess
+import sys
 import os
+
+# --- Dependency Installer ---
+# This block checks for required packages and installs them if they're missing.
+# This is particularly useful for environments like Cloudera where the base image
+# may not include all necessary libraries.
+try:
+    # A quick check for a primary library. If this fails, run the installer.
+    import streamlit
+except ImportError:
+    print("Required libraries not found. Installing...")
+    try:
+        # Full list of dependencies from README.md
+        requirements = [
+            "fastapi", "streamlit", "sqlalchemy", "pydantic", "pandas",
+            "babel", "requests", "geopy", "uvicorn", "plotly"
+        ]
+        # Use subprocess to ensure it's run correctly.
+        subprocess.check_call([sys.executable, "-m", "pip", "install", *requirements])
+        print("Dependencies installed successfully.")
+    except Exception as e:
+        print(f"Error installing dependencies: {e}")
+        # Exit if installation fails, as the app cannot run.
+        sys.exit(1)
+
+
 import uuid
 import json
 import time
@@ -105,7 +132,7 @@ TRIALS = [
 
 QUESTION_FLOW = [
     {"q_id": "age", "text_dict": {"en": "What is your age?", "fr": "Quel âge avez-vous?", "es": "¿Cuál es su edad?"}, "answer_type": "number", "voice_enabled": True, "next": "gender"},
-    {"q_id": "gender", "text_dict": {"en": "What is your gender?", "fr": "Quel est votre genre?", "es": "¿Cuál es su género?"}, "answer_type": "select", "options": ["male", "female", "other"], "voice_enabled": True, "next": "diabetic"},
+    {"q_id": "gender", "text_dict": {"en": "What is your gender?", "fr": "Quel est votre genre?", "es": "¿Cuál es su género?"}, "answer_type": "select", "options": ["Male", "Female", "Other"], "voice_enabled": True, "next": "diabetic"},
     {"q_id": "diabetic", "text_dict": {"en": "Do you have diabetes?", "fr": "Avez-vous du diabète?", "es": "¿Tiene diabetes?"}, "answer_type": "bool", "voice_enabled": True, "next": "cardiac_history"},
     {"q_id": "cardiac_history", "text_dict": {"en": "Any history of cardiac disease?", "fr": "Antécédents de maladie cardiaque?", "es": "¿Antecedentes de enfermedad cardíaca?"}, "answer_type": "bool", "voice_enabled": True, "next": None},
 ]
